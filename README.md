@@ -1,30 +1,91 @@
 # Midi sequencer creation
+<img width="1024" height="341" alt="image" src="https://github.com/user-attachments/assets/084d3f96-2fe5-410e-a96a-7d8938e29217" />
+# Project Description
+Based on your clarification, here's a revised GitHub README description:
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+Hardware MIDI Sequencer - DAW-to-Hardware Bridge
+A MIDI sequencer project that eliminates the tedious re-recording workflow between DAWs and hardware synthesizers. Currently a Chrome-based web application, with plans to migrate to a standalone Raspberry Pi Zero 2 hardware solution.
+The Problem
+Traditional DAW-to-hardware workflows require real-time recording on each device, which is time-consuming and inefficient. If you edit sequences in your DAW, you need to play them back and re-record on your hardware—every single time.
+The Solution
+This project provides a direct bridge between your DAW and hardware setup:
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/netvids-projects/v0-midi-sequencer-creation)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/vGCc53kznVS)
+Export MIDI files from your DAW
+Upload to the sequencer
+Play back immediately via MIDI output—no re-recording required
 
-## Overview
+Current Status
+Phase 1 (Current): Chrome-based web application
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+Upload MIDI files directly from your browser
+Playback through Web MIDI API
+Works with WIDI Bluetooth MIDI adapters
+1.86ms latency for tight, responsive playback
 
-## Deployment
+Phase 2 (Planned): Standalone Raspberry Pi hardware
 
-Your project is live at:
+Raspberry Pi Zero 2 W based
+Touchscreen interface for playback and editing
+Fully portable, no computer required during performance
+Maintains the same low-latency performance
 
-**[https://vercel.com/netvids-projects/v0-midi-sequencer-creation](https://vercel.com/netvids-projects/v0-midi-sequencer-creation)**
+Features
 
-## Build your app
+Direct MIDI File Import - No re-recording needed
+Low Latency - 1.86ms playback latency
+Elektron-Inspired Workflow - One MIDI file per bank/program (compatible with Octatrack, Rytm, Analog Four, etc.)
+Bluetooth MIDI Support - WIDI Bluetooth MIDI integration
+Chrome-Based - Currently runs in Chrome browser using Web MIDI API
 
-Continue building your app on:
+Requirements (Current Version)
 
-**[https://v0.app/chat/vGCc53kznVS](https://v0.app/chat/vGCc53kznVS)**
+Google Chrome browser (Web MIDI API support)
+MIDI interface or WIDI Bluetooth MIDI adapter
+Compatible MIDI hardware synthesizers/drum machines
 
-## How It Works
+Tested With
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Elektron Octatrack
+Elektron Analog Rytm
+Elektron Analog (Four/Keys)
+Clavia Nord G1
+
+Tech Stack
+Current (Chrome Version):
+
+Python modules
+Chromium Web MIDI API
+WIDI Bluetooth MIDI
+
+Planned (Raspberry Pi Version):
+
+Raspberry Pi Zero 2 W
+Python-based MIDI engine
+Touchscreen display interface
+Standalone MIDI hardware interface
+
+Use Cases
+
+Live Performance - Load pre-arranged sequences (standalone version will eliminate laptop dependency)
+Studio Workflow - Edit in your DAW, perform with hardware
+Hybrid Setup - DAW editing power + hardware immediacy
+
+Roadmap
+
+ Chrome-based MIDI file upload and playback
+ WIDI Bluetooth MIDI integration
+ Migration to Raspberry Pi Zero 2 hardware
+ Touchscreen interface implementation
+ Expanded playback controls
+ Real-time MIDI editing
+ Pattern chaining/arrangement mode
+ Song mode/setlist management
+
+Contributing
+Feedback and contributions welcome! This project aims to serve the community of musicians who work across DAW and hardware domains.
+Looking for feedback on:
+
+DAW-to-hardware workflow preferences
+Feature requests for live performance
+Use case scenarios
+
