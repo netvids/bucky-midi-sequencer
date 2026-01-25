@@ -1,4 +1,4 @@
-# Midi sequencer creation
+# Bucky Midi sequencer creation
 <img width="1024" height="341" alt="image" src="https://github.com/user-attachments/assets/084d3f96-2fe5-410e-a96a-7d8938e29217" />
 # Project Description
 Based on your clarification, here's a revised GitHub README description:
