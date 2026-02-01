@@ -12,11 +12,11 @@ interface MidiDeviceSelectorProps {
 
 export function MidiDeviceSelector({ outputs, selectedOutput, onSelectOutput }: MidiDeviceSelectorProps) {
   return (
-    <div>
-      <Label className="text-xs text-muted-foreground">MIDI Device</Label>
+    <div className="flex items-center gap-2">
+      <Label className="text-xs text-muted-foreground whitespace-nowrap">MIDI:</Label>
       <Select value={selectedOutput?.id || ""} onValueChange={onSelectOutput}>
-        <SelectTrigger className="mt-0.5 h-8 bg-secondary text-xs [&>svg]:hidden">
-          <SelectValue placeholder={outputs.length === 0 ? "No devices" : "Select device"} />
+        <SelectTrigger className="h-7 flex-1 bg-secondary text-xs [&>svg]:hidden">
+          <SelectValue placeholder={outputs.length === 0 ? "No devices" : "Select"} />
         </SelectTrigger>
         <SelectContent position="popper" side="right" sideOffset={4}>
           {outputs.map((output) => (
