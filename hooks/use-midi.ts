@@ -18,22 +18,18 @@ export function useMidi() {
 
   // Update function that enumerates MIDI outputs
   updateOutputsRef.current = (access: MIDIAccess) => {
-    console.log("[v0] Enumerating MIDI outputs...")
     const outputList: MidiOutput[] = []
     access.outputs.forEach((output) => {
-      console.log("[v0] Found MIDI output:", output.id, output.name, output.state, output.connection)
       outputList.push({
         id: output.id,
         name: output.name || "Unknown Device",
         output,
       })
     })
-    console.log("[v0] Total outputs found:", outputList.length)
     setOutputs(outputList)
 
     // Auto-select first output if none selected
     if (outputList.length > 0 && !selectedOutput) {
-      console.log("[v0] Auto-selecting first output:", outputList[0].name)
       setSelectedOutput(outputList[0].output)
     }
   }
@@ -41,27 +37,26 @@ export function useMidi() {
   // Initialize Web MIDI API
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.requestMIDIAccess) {
-      console.log("[v0] Web MIDI API not available")
       setError("Web MIDI API not supported in this browser")
       return
     }
 
-    console.log("[v0] Requesting MIDI access...")
     navigator.requestMIDIAccess({ sysex: false })
       .then((access) => {
-        console.log("[v0] MIDI access granted")
         setMidiAccess(access)
         updateOutputsRef.current(access)
 
         // Listen for device changes
-        access.onstatechange = (event) => {
-          console.log("[v0] MIDI state changed:", event)
+        access.onstatechange = () => {
           updateOutputsRef.current(access)
         }
       })
       .catch((err) => {
-        console.log("[v0] MIDI access error:", err)
-        setError(`Failed to access MIDI devices: ${err.message}`)
+        if (err.message?.includes("permissions policy") || err.message?.includes("disabled")) {
+          setError("MIDI blocked in iframe. Deploy or run locally to use MIDI.")
+        } else {
+          setError(`MIDI error: ${err.message}`)
+        }
       })
   }, [])
 
