@@ -2,44 +2,44 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import type { MidiNote } from "@/lib/types"
-import * as WebMidi from "webmidi"
+import WebMidi from "webmidi"
 
 export interface MidiOutput {
   id: string
   name: string
-  output: WebMidi.MIDIOutput
+  output: MIDIOutput
 }
 
 export function useMidi() {
-  const [midiAccess, setMidiAccess] = useState<WebMidi.MIDIAccess | null>(null)
+  const [midiAccess, setMidiAccess] = useState<MIDIAccess | null>(null)
   const [outputs, setOutputs] = useState<MidiOutput[]>([])
-  const [selectedOutput, setSelectedOutput] = useState<WebMidi.MIDIOutput | null>(null)
+  const [selectedOutput, setSelectedOutput] = useState<MIDIOutput | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   // Initialize Web MIDI API
   useEffect(() => {
-    if (!WebMidi.enabled) {
+    if (typeof navigator === "undefined" || !navigator.requestMIDIAccess) {
       setError("Web MIDI API not supported in this browser")
       return
     }
 
-    WebMidi.enable()
+    navigator.requestMIDIAccess({ sysex: false })
       .then((access) => {
         setMidiAccess(access)
         updateOutputs(access)
 
         // Listen for device changes
-        access.addEventListener("statechange", () => {
+        access.onstatechange = () => {
           updateOutputs(access)
-        })
+        }
       })
       .catch((err) => {
         setError(`Failed to access MIDI devices: ${err.message}`)
       })
   }, [])
 
-  const updateOutputs = useCallback(
-    (access: WebMidi.MIDIAccess) => {
+const updateOutputs = useCallback(
+    (access: MIDIAccess) => {
       const outputList: MidiOutput[] = []
       access.outputs.forEach((output) => {
         outputList.push({
