@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import type WebMidi from "webmidi"
 import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -29,9 +28,8 @@ interface ControlPanelProps {
   onLoopChange: (loop: boolean) => void
   onOctaveChange: (octave: number) => void
   midiOutputs?: MidiOutput[]
-  selectedMidiOutput?: WebMidi.MIDIOutput | null
+  selectedMidiOutput?: MIDIOutput | null
   onSelectMidiOutput?: (outputId: string) => void
-  midiError?: string | null
 }
 
 export function ControlPanel({
@@ -53,7 +51,6 @@ export function ControlPanel({
   midiOutputs = [],
   selectedMidiOutput,
   onSelectMidiOutput,
-  midiError,
 }: ControlPanelProps) {
   const loadInputRef = useRef<HTMLInputElement>(null)
   const [tempoOpen, setTempoOpen] = useState(false)
@@ -84,7 +81,6 @@ export function ControlPanel({
             outputs={midiOutputs}
             selectedOutput={selectedMidiOutput || null}
             onSelectOutput={onSelectMidiOutput}
-            error={midiError}
           />
         )}
 
