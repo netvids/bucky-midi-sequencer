@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import type { MidiNote } from "@/lib/types"
-import WebMidi from "webmidi"
 
 export interface MidiOutput {
   id: string
@@ -15,50 +14,58 @@ export function useMidi() {
   const [outputs, setOutputs] = useState<MidiOutput[]>([])
   const [selectedOutput, setSelectedOutput] = useState<MIDIOutput | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const updateOutputsRef = useRef<(access: MIDIAccess) => void>(() => {})
+
+  // Update function that enumerates MIDI outputs
+  updateOutputsRef.current = (access: MIDIAccess) => {
+    console.log("[v0] Enumerating MIDI outputs...")
+    const outputList: MidiOutput[] = []
+    access.outputs.forEach((output) => {
+      console.log("[v0] Found MIDI output:", output.id, output.name, output.state, output.connection)
+      outputList.push({
+        id: output.id,
+        name: output.name || "Unknown Device",
+        output,
+      })
+    })
+    console.log("[v0] Total outputs found:", outputList.length)
+    setOutputs(outputList)
+
+    // Auto-select first output if none selected
+    if (outputList.length > 0 && !selectedOutput) {
+      console.log("[v0] Auto-selecting first output:", outputList[0].name)
+      setSelectedOutput(outputList[0].output)
+    }
+  }
 
   // Initialize Web MIDI API
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.requestMIDIAccess) {
+      console.log("[v0] Web MIDI API not available")
       setError("Web MIDI API not supported in this browser")
       return
     }
 
+    console.log("[v0] Requesting MIDI access...")
     navigator.requestMIDIAccess({ sysex: false })
       .then((access) => {
+        console.log("[v0] MIDI access granted")
         setMidiAccess(access)
-        updateOutputs(access)
+        updateOutputsRef.current(access)
 
         // Listen for device changes
-        access.onstatechange = () => {
-          updateOutputs(access)
+        access.onstatechange = (event) => {
+          console.log("[v0] MIDI state changed:", event)
+          updateOutputsRef.current(access)
         }
       })
       .catch((err) => {
+        console.log("[v0] MIDI access error:", err)
         setError(`Failed to access MIDI devices: ${err.message}`)
       })
   }, [])
 
-const updateOutputs = useCallback(
-    (access: MIDIAccess) => {
-      const outputList: MidiOutput[] = []
-      access.outputs.forEach((output) => {
-        outputList.push({
-          id: output.id,
-          name: output.name || "Unknown Device",
-          output,
-        })
-      })
-      setOutputs(outputList)
-
-      // Auto-select first output if none selected
-      if (outputList.length > 0 && !selectedOutput) {
-        setSelectedOutput(outputList[0].output)
-      }
-    },
-    [selectedOutput],
-  )
-
-  const selectOutput = useCallback(
+const selectOutput = useCallback(
     (outputId: string) => {
       const output = outputs.find((o) => o.id === outputId)
       if (output) {
