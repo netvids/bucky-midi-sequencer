@@ -84,4 +84,3 @@ Looking for feedback on:
 DAW-to-hardware workflow preferences
 Feature requests for live performance
 Use case scenarios
-

@@ -51,7 +51,6 @@ export default function MidiSequencer() {
     sendProgramChange,
     sendBankSelect,
     sendAllNotesOff,
-    error: midiError,
     isReady: midiReady,
   } = useMidi()
 
@@ -190,7 +189,6 @@ export default function MidiSequencer() {
           midiOutputs={outputs}
           selectedMidiOutput={selectedOutput}
           onSelectMidiOutput={selectOutput}
-          midiError={midiError}
         />
 
         {/* Sequencer View */}
