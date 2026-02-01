@@ -7,6 +7,7 @@ import { TransportControls } from "@/components/transport-controls"
 import { UploadDialog } from "@/components/upload-dialog"
 import type { MidiTrack, MidiNote } from "@/lib/types"
 import { useMidi, useMidiPlayback } from "@/hooks/use-midi"
+import { createMidiFile } from "@/lib/create-midi-file"
 
 // Demo data for visualization
 const demoNotes: MidiNote[] = [
@@ -115,18 +116,13 @@ export default function MidiSequencer() {
   }
 
   const handleSaveProject = () => {
-    const projectData = {
-      track,
-      tempo,
-      syncMode,
-      loop,
-      octave,
-    }
-    const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: "application/json" })
+    // Export as MIDI file
+    const midiBytes = createMidiFile(track.notes, tempo)
+    const blob = new Blob([midiBytes], { type: "audio/midi" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `${track.name || "project"}.json`
+    a.download = `${track.name || "project"}.mid`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -135,15 +131,32 @@ export default function MidiSequencer() {
 
   const handleLoadProject = async (file: File) => {
     try {
-      const text = await file.text()
-      const projectData = JSON.parse(text)
-      if (projectData.track) setTrack(projectData.track)
-      if (projectData.tempo) setTempo(projectData.tempo)
-      if (projectData.syncMode) setSyncMode(projectData.syncMode)
-      if (typeof projectData.loop === "boolean") setLoop(projectData.loop)
-      if (typeof projectData.octave === "number") setOctave(projectData.octave)
+      const fileName = file.name.toLowerCase()
+      
+      if (fileName.endsWith('.mid') || fileName.endsWith('.midi')) {
+        // Load MIDI file
+        const arrayBuffer = await file.arrayBuffer()
+        const bytes = new Uint8Array(arrayBuffer)
+        const parsedNotes = parseMidiFile(bytes)
+        
+        setTrack((prev) => ({
+          ...prev,
+          id: crypto.randomUUID(),
+          name: file.name.replace(/\.(mid|midi)$/i, ""),
+          notes: parsedNotes,
+        }))
+      } else {
+        // Load JSON project file
+        const text = await file.text()
+        const projectData = JSON.parse(text)
+        if (projectData.track) setTrack(projectData.track)
+        if (projectData.tempo) setTempo(projectData.tempo)
+        if (projectData.syncMode) setSyncMode(projectData.syncMode)
+        if (typeof projectData.loop === "boolean") setLoop(projectData.loop)
+        if (typeof projectData.octave === "number") setOctave(projectData.octave)
+      }
     } catch (error) {
-      console.error("Failed to load project:", error)
+      console.error("Failed to load file:", error)
     }
   }
 

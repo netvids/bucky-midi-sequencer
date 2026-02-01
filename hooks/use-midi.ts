@@ -2,63 +2,65 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import type { MidiNote } from "@/lib/types"
-import * as WebMidi from "webmidi"
 
 export interface MidiOutput {
   id: string
   name: string
-  output: WebMidi.MIDIOutput
+  output: MIDIOutput
 }
 
 export function useMidi() {
-  const [midiAccess, setMidiAccess] = useState<WebMidi.MIDIAccess | null>(null)
+  const [midiAccess, setMidiAccess] = useState<MIDIAccess | null>(null)
   const [outputs, setOutputs] = useState<MidiOutput[]>([])
-  const [selectedOutput, setSelectedOutput] = useState<WebMidi.MIDIOutput | null>(null)
+  const [selectedOutput, setSelectedOutput] = useState<MIDIOutput | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const updateOutputsRef = useRef<(access: MIDIAccess) => void>(() => {})
+
+  // Update function that enumerates MIDI outputs
+  updateOutputsRef.current = (access: MIDIAccess) => {
+    const outputList: MidiOutput[] = []
+    access.outputs.forEach((output) => {
+      outputList.push({
+        id: output.id,
+        name: output.name || "Unknown Device",
+        output,
+      })
+    })
+    setOutputs(outputList)
+
+    // Auto-select first output if none selected
+    if (outputList.length > 0 && !selectedOutput) {
+      setSelectedOutput(outputList[0].output)
+    }
+  }
 
   // Initialize Web MIDI API
   useEffect(() => {
-    if (!WebMidi.enabled) {
+    if (typeof navigator === "undefined" || !navigator.requestMIDIAccess) {
       setError("Web MIDI API not supported in this browser")
       return
     }
 
-    WebMidi.enable()
+    navigator.requestMIDIAccess({ sysex: false })
       .then((access) => {
         setMidiAccess(access)
-        updateOutputs(access)
+        updateOutputsRef.current(access)
 
         // Listen for device changes
-        access.addEventListener("statechange", () => {
-          updateOutputs(access)
-        })
+        access.onstatechange = () => {
+          updateOutputsRef.current(access)
+        }
       })
       .catch((err) => {
-        setError(`Failed to access MIDI devices: ${err.message}`)
+        if (err.message?.includes("permissions policy") || err.message?.includes("disabled")) {
+          setError("MIDI blocked in iframe. Deploy or run locally to use MIDI.")
+        } else {
+          setError(`MIDI error: ${err.message}`)
+        }
       })
   }, [])
 
-  const updateOutputs = useCallback(
-    (access: WebMidi.MIDIAccess) => {
-      const outputList: MidiOutput[] = []
-      access.outputs.forEach((output) => {
-        outputList.push({
-          id: output.id,
-          name: output.name || "Unknown Device",
-          output,
-        })
-      })
-      setOutputs(outputList)
-
-      // Auto-select first output if none selected
-      if (outputList.length > 0 && !selectedOutput) {
-        setSelectedOutput(outputList[0].output)
-      }
-    },
-    [selectedOutput],
-  )
-
-  const selectOutput = useCallback(
+const selectOutput = useCallback(
     (outputId: string) => {
       const output = outputs.find((o) => o.id === outputId)
       if (output) {

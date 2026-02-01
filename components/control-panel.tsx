@@ -251,7 +251,7 @@ export function ControlPanel({
             <FolderOpen className="h-3 w-3" />
             Load
           </Button>
-          <input ref={loadInputRef} type="file" accept=".json" onChange={handleLoadChange} className="hidden" />
+          <input ref={loadInputRef} type="file" accept=".json,.mid,.midi" onChange={handleLoadChange} className="hidden" />
         </div>
 
         {/* Upload MIDI Button */}
